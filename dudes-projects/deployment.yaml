@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: dudes-mealie
+  name: dudes-mealie
+  namespace: dudes-project
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dudes-mealie
+  template:
+    metadata:
+      labels:
+        app: dudes-mealie
+    spec:
+      containers:
+      - image: ghcr.io/mealie-recipes/mealie:v2.7.1
+        name: dudes-mealie
+        ports:
+          - containerPort: 9000
