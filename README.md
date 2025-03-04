@@ -103,7 +103,7 @@ test-6546ccdcf9-mqj2d   1/1     Running   0          68s     10.42.0.26   lima-r
 test-6546ccdcf9-t8n2p   1/1     Running   0          68s     10.42.0.29   lima-rancher-desktop   <none>           <none>
 test-6546ccdcf9-v9bxj   1/1     Running   0          68s     10.42.0.27   lima-rancher-desktop   <none>           <none>
 test-6546ccdcf9-w24f9   1/1     Running   0          68s     10.42.0.28   lima-rancher-desktop   <none>           <none>
-test-6546ccdcf9-wfmpt   1/1     Running   0          68s     10.42.0.32   lima-rancher-desktop   <none>           <none>
+test-6546ccdcf9-wfmpt   1/1     Running   0          68s     10.42.0.32   lima-ranche-desktop   <none>           <none>
 ~/Git/udemy/kubernetes-labs • section3-deployments ❯❯
 ~/Git/udemy/kubernetes-labs • section3-deployments ❯❯ k get replicasets.apps test-6546ccdcf9 
 NAME              DESIRED   CURRENT   READY   AGE
@@ -165,4 +165,77 @@ test-d98b8ff45-vhqpw   1/1     Running            0             15m
 test-d98b8ff45-vsd2h   1/1     Running            0             15m
 test-d98b8ff45-x7j2m   1/1     Running            0             15m
 ```
+## Section 3: Deployments - Namespaces
+
+We're going to  clean up the deployments that are failing. This is left from the previous exercise.
+
+```
+~/Git/udemy/kubernetes-labs • section3-namespaces ❯❯ k get deployments.apps
+NAME   READY   UP-TO-DATE   AVAILABLE   AGE
+test   9/10    2            9           2d2h
+~/Git/udemy/kubernetes-labs • section3-namespaces ❯❯ k delete deployments.apps test 
+deployment.apps "test" deleted
+~/Git/udemy/kubernetes-labs • section3-namespaces ❯❯ k get pods
+NAME         READY   STATUS    RESTARTS   AGE
+httpd        1/1     Running   0          2d5h
+nginx-docs   1/1     Running   0          2d6h
+nginx-yaml   1/1     Running   0          2d6h
+~/Git/udemy/kubernetes-labs • section3-namespaces ❯❯ k delete pod httpd nginx-docs nginx-yaml 
+pod "httpd" deleted
+pod "nginx-docs" deleted
+pod "nginx-yaml" deleted
+~/Git/udemy/kubernetes-labs • section3-namespaces ❯❯ k get pods
+No resources found in default namespace.
+~/Git/udemy/kubernetes-labs • section3-namespaces ❯❯
+```
+
+The output of the last command "No resources found in default namespace." what does that mean? We can get a list of namespaces to see: `k get namespaces` A name space is just a logical grouping of resources. Here is what the docs say about it:[Kubernetes Documentation / Concepts / Overview / Objects In Kubernetes / Namespaces](https://kubernetes.io/docs/concepts/overview/working-with-objects/namespaces/) an interestiong note on the docs page. 
+
+**Note:**
+>For a production cluster, consider not using the default namespace. Instead, make other namespaces and use those.
+
+Next we created some directories and then created a namespace in one of the newly created directories.
+```
+~/Git/udemy/kubernetes-labs • section3-namespaces ❯❯❯ mcd dudes-projects
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-namespaces ❯❯❯ k create ns dudes-project --dry-run=client -o yaml > namespace.yaml
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-namespaces ❯❯❯
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-namespaces ❯❯❯ k apply -f namespace.yaml
+namespace/dudes-project created
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-namespaces ❯❯❯ k get ns
+NAME              STATUS   AGE
+default           Active   3d8h
+dudes-project     Active   7s
+kube-node-lease   Active   3d8h
+kube-public       Active   3d8h
+kube-system       Active   3d8h
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-namespaces ❯❯❯
+```
+Next we created a namespace and then created a pod and did so with the namespace.
+```
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-namespaces ❯❯❯ k run dude-mealie --image=nginx -ndudes-project 
+pod/dude-mealie created
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-namespaces ❯❯❯ kgp
+No resources found in default namespace.
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-namespaces ❯❯❯ kgp -n dudes-project
+NAME          READY   STATUS    RESTARTS   AGE   IP           NODE                   NOMINATED NODE   READINESS GATES
+dude-mealie   1/1     Running   0          49s   10.42.0.77   lima-rancher-desktop   <none>           <none>
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-namespaces ❯❯❯
+```
+
+Now we are setting the namespace to the current context so we don't constantly have to use the -n flag when listing resources and what not. 
+```
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-namespaces ❯❯❯ k config current-context 
+rancher-desktop
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-namespaces ❯❯❯ k config set-context --current --namespace=dudes-project
+Context "rancher-desktop" modified.
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-namespaces ❯❯❯ kgp
+NAME          READY   STATUS    RESTARTS   AGE   IP           NODE                   NOMINATED NODE   READINESS GATES
+dude-mealie   1/1     Running   0          10m   10.42.0.77   lima-rancher-desktop   <none>           <none>
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-namespaces ❯❯❯ kgp -n default
+No resources found in default namespace.
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-namespaces ❯❯❯ 
+```
+
+
+
 
