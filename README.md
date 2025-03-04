@@ -236,6 +236,40 @@ No resources found in default namespace.
 ~/Git/udemy/kubernetes-labs/dudes-projects • section3-namespaces ❯❯❯ 
 ```
 
+## Section 3: Deployments - Our first Application 
+
+We've now created a directory for our project and the name space. We then createed the deployment for the pod to run the application in. and we setup port forwarding to look at the app in the browser. While clicking around in the app we coulld see that the version we used was old and not the latest. so we then modified the `deployment.yaml` file to use the latest version on their github and loaded the `kubectl get pods` command in a `watch` session so we can watcht he upgrade. 
+```
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-our-1st-app ❯ k create deployment dudes-mealie --image=nginx --dry-run=client -o yaml > deployment.yaml
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-our-1st-app ❯❯ vi deployment.yaml
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-our-1st-app ❯❯ k apply -f deployment.yaml 
+deployment.apps/dudes-mealie created
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-our-1st-app ❯❯ kgp
+NAME                            READY   STATUS              RESTARTS   AGE   IP           NODE                   NOMINATED NODE   READINESS GATES
+dude-mealie                     1/1     Running             0          52m   10.42.0.77   lima-rancher-desktop   <none>           <none>
+dudes-mealie-755cf89bf4-tnkcb   0/1     ContainerCreating   0          6s    <none>       lima-rancher-desktop   <none>           <none>
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-our-1st-app ❯❯
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-our-1st-app ❯❯ k delete pod dude-mealie 
+pod "dude-mealie" deleted
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-our-1st-app ❯❯ kgp
+NAME                            READY   STATUS    RESTARTS   AGE     IP           NODE                   NOMINATED NODE   READINESS GATES
+dudes-mealie-755cf89bf4-tnkcb   1/1     Running   0          4m26s   10.42.0.78   lima-rancher-desktop   <none>           <none>
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-our-1st-app ❯❯ k port-forward pods/dudes-mealie-755cf89bf4-tnkcb 9000 
+Forwarding from 127.0.0.1:9000 -> 9000
+Forwarding from [::1]:9000 -> 9000
+Handling connection for 9000
+Handling connection for 9000
+...
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-our-1st-app ❯❯ vi deployment.yaml 
+~/Git/udemy/kubernetes-labs/dudes-projects • section3-our-1st-app ❯❯ watch -n1 kubectl get pods
+Every 1.0s: kubectl get pods                                                                                                       cory-macbookpro-m1pro: 00:01:44
+                                                                                                                                                     in 0.100s (0)
+NAME                            READY   STATUS              RESTARTS   AGE
+dudes-mealie-755cf89bf4-tnkcb   1/1     Running             0          22m
+dudes-mealie-7b46ff9b4f-v48hv   0/1     ContainerCreating   0          3s
+```
+
+After we did the upgrade of the application we connected to it again with port forwarding and this new version I set to latest which was widely different than the one in the tutorial. Anyways it worked and was pretty cool watching it uptrade by keeping the onld version online while it downloaded the latest image.  Here is the releases page for the application we setup: [mealie-recipes/mealie releases](https://github.com/mealie-recipes/mealie/releases)
 
 
 
