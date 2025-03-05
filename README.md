@@ -271,5 +271,67 @@ dudes-mealie-7b46ff9b4f-v48hv   0/1     ContainerCreating   0          3s
 
 After we did the upgrade of the application we connected to it again with port forwarding and this new version I set to latest which was widely different than the one in the tutorial. Anyways it worked and was pretty cool watching it uptrade by keeping the onld version online while it downloaded the latest image.  Here is the releases page for the application we setup: [mealie-recipes/mealie releases](https://github.com/mealie-recipes/mealie/releases)
 
+## Section 4. Networking
+
+In this section the first video is sort of Networking 101 and refresher but then talks about the CNI that Kubernetes uses. We then cehck out what CNI that the RancherDesktop is using by shelling into the VM that runs Kubernetes and looking at it's config. 
+
+```
+~/Git/udemy/kubernetes-labs/dudes-projects • section4-networking-intro ❯ rdctl shell bash
+/Users/cory/Git/udemy/kubernetes-labs/dudes-projects $ tree /etc/cni/
+/etc/cni/
+└── net.d
+    └── 10-flannel.conflist
+
+1 directories, 1 files
+/Users/cory/Git/udemy/kubernetes-labs/dudes-projects $
+/Users/cory/Git/udemy/kubernetes-labs/dudes-projects $ cat /etc/cni/net.d/10-flannel.conflist 
+{
+  "name":"cbr0",
+  "cniVersion":"0.3.1",
+  "plugins":[
+    {
+      "type":"flannel",
+      "delegate":{
+        "hairpinMode":true,
+        "forceAddress":true,
+        "isDefaultGateway":true
+      }
+    },
+    {
+      "type":"portmap",
+      "capabilities":{
+        "portMappings":true
+      }
+    }
+  ]
+}
+/Users/cory/Git/udemy/kubernetes-labs/dudes-projects $
+```
+
+Note: very cool that you can see this info from RancherDesktop. `rdctl -h` for more info about ranchDesktop from the cli.
+
+Next section is talking about services. So basically we ended up creating a service that exposes our mealie app on port 9000 and then we set the type to "LoadBalancer" to be able to access it via localhost or it's external IP. this is much more useful than having to setup protforwding... to say the least. 
+
+```
+~/Git/udemy/kubernetes-labs/deployments • section4-networking-intro ❯❯❯ k get svc
+NAME           TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)    AGE
+dudes-mealie   ClusterIP   10.43.120.47   <none>        9000/TCP   45s
+~/Git/udemy/kubernetes-labs/deployments • section4-networking-intro ❯❯❯
+~/Git/udemy/kubernetes-labs/deployments • section4-networking-intro ❯❯❯ k get svc dudes-mealie -o yaml > service.yaml
+~/Git/udemy/kubernetes-labs/deployments • section4-networking-intro ❯❯❯ vi service.yaml
+~/Git/udemy/kubernetes-labs/deployments • section4-networking-intro ❯❯❯ k delete svc dudes-mealie
+service "dudes-mealie" deleted
+~/Git/udemy/kubernetes-labs/deployments • section4-networking-intro ❯❯❯ k get svc
+No resources found in dudes-project namespace.
+~/Git/udemy/kubernetes-labs/deployments • section4-networking-intro ❯❯❯ k apply -f service.yaml
+service/dudes-mealie created
+~/Git/udemy/kubernetes-labs/deployments • section4-networking-intro ❯❯❯ k get svc
+NAME           TYPE           CLUSTER-IP     EXTERNAL-IP    PORT(S)          AGE
+dudes-mealie   LoadBalancer   10.43.217.50   192.168.5.15   9000:30462/TCP   3s
+~/Git/udemy/kubernetes-labs/deployments • section4-networking-intro ❯❯❯
+```
+The next section he discusses the Ingress controller for Kubernetes. This is a more advanced topic but basically the thing to know is that it is used with DNS and URL's. 
+
+
 
 
