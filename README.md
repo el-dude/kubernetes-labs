@@ -332,6 +332,18 @@ dudes-mealie   LoadBalancer   10.43.217.50   192.168.5.15   9000:30462/TCP   3s
 ```
 The next section he discusses the Ingress controller for Kubernetes. This is a more advanced topic but basically the thing to know is that it is used with DNS and URL's. 
 
+## Section 5: Storage
+
+In this section he discusses storage and how to use it with Kubernetes. 
+
+### Section 5: Ephemeral Storage
+
+He talks about how to create and attach volumes and the api to do so. 
+
+### Section 5: Persistent Storage
+
+He goes over how to create a volume and attach it to our container for the mealie app and the save some recipes. we hthen destroy the containers and start new ones and the data persistis. 
+
 
 
 
