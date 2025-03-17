@@ -344,6 +344,8 @@ He talks about how to create and attach volumes and the api to do so.
 
 He goes over how to create a volume and attach it to our container for the mealie app and the save some recipes. we hthen destroy the containers and start new ones and the data persistis. 
 
+## Section 6: K9s
 
+This section we went over how to use k9s and compared it to the kubectl commands we've been doing.
 
 
